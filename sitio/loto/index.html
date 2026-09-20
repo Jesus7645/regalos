@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loto amarillo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<svg id="lotus" viewBox="0 0 400 520" role="button" tabindex="0" aria-label="Loto amarillo. Actívalo para abrirlo o cerrarlo">
+  <defs>
+    <linearGradient id="gBack" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#e29400"/><stop offset="1" stop-color="#ffe066"/>
+    </linearGradient>
+    <linearGradient id="gMid" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#f0a800"/><stop offset="1" stop-color="#fff0a0"/>
+    </linearGradient>
+    <linearGradient id="gFront" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#ffbf14"/><stop offset="1" stop-color="#fffbd0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- estanque -->
+  <ellipse cx="200" cy="420" rx="190" ry="78" fill="rgba(255,255,255,.07)"/>
+  <ellipse class="ripple" style="--d:0s" cx="200" cy="400" rx="185" ry="50" fill="none" stroke="#bfe6df" stroke-width="2"/>
+  <ellipse class="ripple" style="--d:2s" cx="200" cy="400" rx="185" ry="50" fill="none" stroke="#bfe6df" stroke-width="2"/>
+  <ellipse class="ripple" style="--d:4s" cx="200" cy="400" rx="185" ry="50" fill="none" stroke="#bfe6df" stroke-width="2"/>
+
+  <!-- hojas flotantes -->
+  <g>
+    <path d="M95 420 m-62 0 a62 20 0 1 0 124 0 a62 20 0 1 0 -124 0 M95 420 L142 410" fill="#3b8a4a" stroke="#256a35" stroke-width="1.5"/>
+    <path d="M318 440 m-52 0 a52 17 0 1 0 104 0 a52 17 0 1 0 -104 0 M318 440 L360 432" fill="#46995a" stroke="#2c7440" stroke-width="1.5"/>
+  </g>
+
+  <g class="bob">
+    <g id="rowBack"></g>
+    <g id="rowMid"></g>
+    <ellipse cx="200" cy="345" rx="20" ry="12" fill="#f5b400"/>
+    <g class="stamens" id="stamens"></g>
+    <g id="rowFront"></g>
+  </g>
+</svg>
+<p>Haz clic en el loto para abrirlo o cerrarlo</p>
+
+<script src="script.js"></script>
+</body>
+</html>
