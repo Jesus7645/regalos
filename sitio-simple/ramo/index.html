@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ramo amarillo</title>
+<style>
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: radial-gradient(circle at 50% 35%, #2d5872, #10222f);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    font-family: Georgia, serif;
+    color: #f5e6a8;
+  }
+  svg { height: min(96vh, 920px); width: auto; max-width: 100vw; cursor: pointer; outline-offset: 6px; }
+  p { position: fixed; top: 12px; margin: 0; width: 100%; text-align: center; font-size: 14px; opacity: .75; pointer-events: none; }
+
+  /* ---------- tallos ---------- */
+  .stem { fill: none; stroke: #3f8a3a; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 1; }
+
+  /* ---------- animación general ---------- */
+  .bloom, .sway { transform-box: view-box; transform-origin: 0 0; }
+  .bloom { filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .35)); }
+
+  .play .stem  { animation: grow 1.1s ease-out both; animation-delay: var(--d); }
+  .play .bloom { animation: bloom 1.1s cubic-bezier(.2, .9, .3, 1.25) both; animation-delay: var(--d); }
+  .play .sway  { animation: sway var(--sdur) ease-in-out infinite; animation-delay: var(--sd); }
+  .play .paper { animation: rise .9s ease-out both; }
+
+  @keyframes grow  { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes bloom { from { transform: scale(0); } to { transform: scale(1); } }
+  @keyframes sway  { 0%, 100% { transform: rotate(calc(var(--sw) * -1)); } 50% { transform: rotate(var(--sw)); } }
+  @keyframes rise  { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+
+  /* ---------- tulipán: se abre al cargar ---------- */
+  .tp-petal { transform-origin: 0 4px; transition: transform 1.4s cubic-bezier(.3, 1.2, .5, 1); }
+  .tp-left  { transform: rotate(12deg); }
+  .tp-right { transform: rotate(-12deg); }
+  .tp-back  { transform: scale(.94); }
+  .tp-front { transform: scale(1); }
+  svg.open .tp-left  { transform: rotate(-9deg); }
+  svg.open .tp-right { transform: rotate(9deg); }
+  svg.open .tp-back  { transform: scale(1.04); }
+  svg.open .tp-front { transform: scale(.9) translateY(6px); }
+
+  /* ---------- loto: se abre al cargar ---------- */
+  .lo-petal {
+    transform-origin: 0 0;
+    transform: rotate(calc(var(--a) * .2));
+    transition: transform 2.2s cubic-bezier(.25, 1, .4, 1);
+    transition-delay: var(--ld);
+  }
+  svg.open .lo-petal { transform: rotate(var(--a)); }
+  .lo-stamens { transform-origin: 0 -45px; transform: scale(.4); opacity: 0; transition: transform 2s .9s, opacity 1.4s .9s; }
+  svg.open .lo-stamens { transform: scale(1); opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .play .stem, .play .bloom, .play .sway, .play .paper { animation: none; }
+    .tp-petal, .lo-petal, .lo-stamens { transition: none; }
+  }
+</style>
+</head>
+<body>
+<p>Haz clic en el ramo para volver a armarlo</p>
+
+<svg id="bouquet" class="play" viewBox="0 0 600 800" role="button" tabindex="0"
+     aria-label="Ramo de seis flores amarillas: girasol, rosa, narciso, diente de león, loto y tulipán. Actívalo para animarlo de nuevo">
+  <defs>
+    <!-- girasol -->
+    <linearGradient id="gSunBack"  x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e89a00"/><stop offset="1" stop-color="#ffc42b"/></linearGradient>
+    <linearGradient id="gSunFront" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffb800"/><stop offset="1" stop-color="#ffe45c"/></linearGradient>
+    <!-- rosa -->
+    <radialGradient id="gRose" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="78">
+      <stop offset="0" stop-color="#d08a00"/><stop offset=".55" stop-color="#f7b900"/><stop offset="1" stop-color="#ffe066"/>
+    </radialGradient>
+    <!-- narciso -->
+    <radialGradient id="gNarFront" cx=".5" cy=".9" r=".9">
+      <stop offset="0" stop-color="#f5b800"/><stop offset=".45" stop-color="#ffd83a"/><stop offset="1" stop-color="#ffea7a"/>
+    </radialGradient>
+    <radialGradient id="gNarBack" cx=".5" cy=".9" r=".9">
+      <stop offset="0" stop-color="#e59a00"/><stop offset=".5" stop-color="#f6bb14"/><stop offset="1" stop-color="#ffd94a"/>
+    </radialGradient>
+    <radialGradient id="gNarCup">
+      <stop offset="0" stop-color="#cf8500"/><stop offset=".32" stop-color="#f2a800"/><stop offset=".65" stop-color="#ffc21a"/><stop offset="1" stop-color="#ffd54a"/>
+    </radialGradient>
+    <!-- tulipán -->
+    <linearGradient id="gTB" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#e29800"/><stop offset="1" stop-color="#f7c400"/></linearGradient>
+    <linearGradient id="gTS" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#f2ad00"/><stop offset="1" stop-color="#ffd935"/></linearGradient>
+    <linearGradient id="gTF" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffc21a"/><stop offset="1" stop-color="#fff08a"/></linearGradient>
+    <!-- loto -->
+    <linearGradient id="gLB" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#e29400"/><stop offset="1" stop-color="#ffe066"/></linearGradient>
+    <linearGradient id="gLM" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#f0a800"/><stop offset="1" stop-color="#fff0a0"/></linearGradient>
+    <linearGradient id="gLF" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffbf14"/><stop offset="1" stop-color="#fffbd0"/></linearGradient>
+    <!-- envoltorio -->
+    <linearGradient id="gPaper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8f0df"/><stop offset="1" stop-color="#e6d6b8"/></linearGradient>
+  </defs>
+
+  <!-- capas de atrás hacia adelante -->
+  <g class="paper">
+    <path d="M150 505 Q300 540 450 505 L332 700 L268 700Z" fill="#cbb99a"/>
+    <g id="leaves"></g>
+  </g>
+  <g id="stems"></g>
+  <g id="heads"></g>
+
+  <!-- papel de envolver -->
+  <g class="paper">
+    <path d="M158 530 Q300 578 442 530 L326 784 Q300 794 274 784Z" fill="url(#gPaper)"/>
+    <path d="M300 566 L442 530 L326 784 Q300 794 300 790Z" fill="rgba(120,90,50,.09)"/>
+    <path d="M300 566 L300 788 M225 548 L288 784 M375 548 L312 784" stroke="rgba(120,90,50,.28)" stroke-width="1.5" fill="none"/>
+    <!-- listón -->
+    <path d="M294 620 L262 694 L284 686 L296 706Z" fill="#d24d63"/>
+    <path d="M306 620 L338 694 L316 686 L304 706Z" fill="#d24d63"/>
+    <path d="M212 590 Q300 612 388 590 L384 614 Q300 636 216 614Z" fill="#e0566b"/>
+    <path d="M300 612 C255 570 225 615 258 640 C275 652 296 632 300 612Z" fill="#ee6f82" stroke="#b83c50" stroke-width="1.5"/>
+    <path d="M300 612 C345 570 375 615 342 640 C325 652 304 632 300 612Z" fill="#ee6f82" stroke="#b83c50" stroke-width="1.5"/>
+    <circle cx="300" cy="616" r="9" fill="#c9445a"/>
+  </g>
+</svg>
+
+<script>
+const NS = 'http://www.w3.org/2000/svg';
+const el = (name, attrs = {}, parent) => {
+  const n = document.createElementNS(NS, name);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+};
+const rng = seed => () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const GOLDEN = Math.PI * (3 - Math.sqrt(5));
+const pt = (a, r) => `${(Math.cos(a) * r).toFixed(2)} ${(Math.sin(a) * r).toFixed(2)}`;
+
+/* ============ 1. GIRASOL (espiral áurea) ============ */
+function sunflower(g) {
+  const ring = (n, inner, len, wid, off, fill) => {
+    for (let i = 0; i < n; i++) {
+      el('path', {
+        d: `M${inner} 0 C${inner + len * .25} ${-wid} ${inner + len * .75} ${-wid * .8} ${inner + len} 0 ` +
+           `C${inner + len * .75} ${wid * .8} ${inner + len * .25} ${wid} ${inner} 0Z`,
+        fill: `url(#${fill})`, stroke: 'rgba(170,100,0,.3)', 'stroke-width': .5,
+        transform: `rotate(${(i / n * 360 + off).toFixed(2)})`
+      }, g);
+    }
+  };
+  ring(34, 29, 60, 8, 180 / 34, 'gSunBack');
+  ring(34, 31, 62, 9, 0, 'gSunFront');
+
+  const SEEDS = 650, discR = 36, sp = discR / Math.sqrt(SEEDS), BANDS = 8;
+  const paths = Array(BANDS).fill('');
+  for (let i = 1; i <= SEEDS; i++) {
+    const r = sp * Math.sqrt(i), a = i * GOLDEN, k = r / discR;
+    const b = Math.min(BANDS - 1, Math.floor(k * BANDS));
+    const x = Math.cos(a) * r, y = Math.sin(a) * r, rad = sp * .46;
+    paths[b] += `M${(x - rad).toFixed(2)} ${y.toFixed(2)}a${rad} ${rad} 0 1 0 ${2 * rad} 0a${rad} ${rad} 0 1 0 ${-2 * rad} 0`;
+  }
+  paths.forEach((d, b) => {
+    const k = b / BANDS;
+    el('path', { d, fill: `hsl(${28 + k * 8}, ${50 + k * 10}%, ${12 + k * 22}%)` }, g);
+  });
+}
+
+/* ============ 2. ROSA (pétalos en espiral) ============ */
+function rose(g) {
+  const R = 78, N = 46;
+  for (let s = 0; s < 5; s++) {
+    const L = R * 1.22, w = R * .16;
+    el('path', {
+      d: `M0 0 C${L * .3} ${-w} ${L * .8} ${-w * .5} ${L} 0 C${L * .8} ${w * .5} ${L * .3} ${w} 0 0Z`,
+      fill: s % 2 ? '#3f8a3a' : '#2f7433', transform: `rotate(${s * 72 + 17})`
+    }, g);
+  }
+  for (let i = 0; i < N; i++) {
+    const t = i / N;
+    const r = R * Math.pow(1 - i / (N + 4), 1.1);
+    const a = i * GOLDEN, w = 0.75 + 0.5 * t, a0 = a - w, a1 = a + w;
+    const ri = r * .3, rd = .12;
+    el('path', {
+      d: `M${pt(a0, ri)} L${pt(a0, r * .96)} Q${pt(a0, r * 1.03)} ${pt(a0 + rd, r)} ` +
+         `A${r.toFixed(2)} ${r.toFixed(2)} 0 0 1 ${pt(a1 - rd, r)} Q${pt(a1, r * 1.03)} ${pt(a1, r * .96)} L${pt(a1, ri)}Z`,
+      fill: 'url(#gRose)', stroke: 'rgba(120,70,0,.38)', 'stroke-width': 1
+    }, g);
+  }
+}
+
+/* ============ 3. NARCISO ============ */
+function narciso(g) {
+  const petal = (L, ang, fill) => {
+    const w = L * .36;
+    el('path', {
+      d: `M0 0 C${-w} ${-L * .3} ${-w * .8} ${-L * .85} 0 ${-L} C${w * .8} ${-L * .85} ${w} ${-L * .3} 0 0Z`,
+      fill: `url(#${fill})`, stroke: 'rgba(170,100,0,.3)', 'stroke-width': .8, transform: `rotate(${ang})`
+    }, g);
+  };
+  for (let i = 0; i < 6; i++) petal(70, 30 + i * 60, 'gNarBack');
+  for (let i = 0; i < 6; i++) petal(80, i * 60, 'gNarFront');
+  for (let i = 0; i < 16; i++) {
+    const a = i / 16 * Math.PI * 2;
+    el('circle', { cx: Math.cos(a) * 25, cy: Math.sin(a) * 25, r: 5.5, fill: '#ffbe0b', stroke: 'rgba(150,80,0,.35)', 'stroke-width': .8 }, g);
+  }
+  el('circle', { r: 26, fill: 'url(#gNarCup)' }, g);
+  el('circle', { r: 21, fill: 'none', stroke: 'rgba(150,80,0,.35)', 'stroke-width': 1.5 }, g);
+}
+
+/* ============ 4. DIENTE DE LEÓN ============ */
+function dandelion(g) {
+  const rand = rng(4242);
+  const RINGS = [
+    { n: 30, len: 104, w: 7,   c: '#f2a900' }, { n: 28, len: 92, w: 7,   c: '#f7b500' },
+    { n: 26, len: 80,  w: 7,   c: '#ffc20e' }, { n: 22, len: 66, w: 6.5, c: '#ffcf2e' },
+    { n: 18, len: 52,  w: 6,   c: '#ffdb4d' }, { n: 12, len: 36, w: 5.5, c: '#ffe680' },
+    { n: 7,  len: 20,  w: 5,   c: '#fff0a8' }
+  ];
+  RINGS.forEach((r, ri) => {
+    for (let i = 0; i < r.n; i++) {
+      const angle = (i / r.n) * 360 + ri * (360 / r.n / 2.3) + (rand() - .5) * 6;
+      const L = r.len * (0.92 + rand() * 0.16), w = r.w;
+      el('path', {
+        d: `M${-w * .45} 0 L${-w} ${-L} L${-w * .35} ${-L * .94} L0 ${-L} L${w * .35} ${-L * .94} L${w} ${-L} L${w * .45} 0Z`,
+        fill: r.c, stroke: 'rgba(150,90,0,.22)', 'stroke-width': .6, transform: `rotate(${angle.toFixed(1)})`
+      }, g);
+    }
+  });
+  el('circle', { r: 8, fill: '#f8b800' }, g);
+}
+
+/* ============ 5. LOTO (vista lateral, base en 0,0) ============ */
+function lotus(g) {
+  const petalPath = (L, w) =>
+    `M0 0 C${-w} ${-L * .3} ${-w * .7} ${-L * .8} 0 ${-L} C${w * .7} ${-L * .8} ${w} ${-L * .3} 0 0Z`;
+  const row = (angles, L, fill, delay) => {
+    angles.forEach((a, i) => {
+      el('path', {
+        class: 'lo-petal', d: petalPath(L, L * .32), fill: `url(#${fill})`,
+        stroke: 'rgba(150,90,0,.3)', 'stroke-width': .8,
+        style: `--a:${a}deg; --ld:${(delay + i * .06).toFixed(2)}s`
+      }, g);
+    });
+  };
+  row([-72, -36, 0, 36, 72], 175, 'gLB', 0);
+  row([-56, -19, 19, 56], 155, 'gLM', .25);
+  el('ellipse', { cx: 0, cy: -50, rx: 20, ry: 12, fill: '#f5b400' }, g);
+  const st = el('g', { class: 'lo-stamens' }, g);
+  for (let k = 0; k < 15; k++) {
+    const ang = (-52 + k * (104 / 14)) * Math.PI / 180;
+    const len = 46 + (k % 3) * 7;
+    const x2 = Math.sin(ang) * len, y2 = -45 - Math.cos(ang) * len;
+    el('line', { x1: Math.sin(ang) * 10, y1: -45, x2, y2, stroke: '#ffc933', 'stroke-width': 2.2, 'stroke-linecap': 'round' }, st);
+    el('circle', { cx: x2, cy: y2, r: 3.2, fill: '#e08a00' }, st);
+  }
+  row([-40, 0, 40], 132, 'gLF', .5);
+}
+
+/* ============ 6. TULIPÁN (vista lateral, base en 0,0) ============ */
+function tulip(g) {
+  el('path', { class: 'tp-petal tp-back',  d: 'M0 0 C-58 -15 -60 -150 0 -208 C60 -150 58 -15 0 0Z',          fill: 'url(#gTB)' }, g);
+  el('path', { class: 'tp-petal tp-left',  d: 'M0 4 C-72 0 -104 -86 -88 -184 C-42 -148 -2 -88 0 4Z',        fill: 'url(#gTS)' }, g);
+  el('path', { class: 'tp-petal tp-right', d: 'M0 4 C72 0 104 -86 88 -184 C42 -148 2 -88 0 4Z',             fill: 'url(#gTS)' }, g);
+  const front = el('g', { class: 'tp-petal tp-front' }, g);
+  el('path', { d: 'M0 8 C-50 -4 -54 -100 0 -168 C54 -100 50 -4 0 8Z', fill: 'url(#gTF)' }, front);
+  el('path', { d: 'M0 -154 C0 -100 0 -50 0 0', stroke: 'rgba(190,120,0,.35)', 'stroke-width': 2, fill: 'none' }, front);
+}
+
+/* ============ hojas ============ */
+const leaves = document.getElementById('leaves');
+function leaf(bx, by, tx, ty, w, fill) {
+  const mx = (bx + tx) / 2, my = (by + ty) / 2, dx = tx - bx, dy = ty - by;
+  const len = Math.hypot(dx, dy), nx = -dy / len * w, ny = dx / len * w;
+  el('path', {
+    d: `M${bx} ${by} Q${mx + nx} ${my + ny} ${tx} ${ty} Q${mx - nx} ${my - ny} ${bx} ${by}Z`,
+    fill, stroke: '#25602a', 'stroke-width': 1
+  }, leaves);
+  el('path', { d: `M${bx} ${by} L${tx} ${ty}`, stroke: 'rgba(255,255,255,.25)', 'stroke-width': 1.2, fill: 'none' }, leaves);
+}
+[[300, 565, 120, 500, 44, '#3d8a3c'], [300, 565, 480, 505, 44, '#478f43'],
+ [300, 565, 210, 440, 36, '#4e9a45'], [300, 565, 395, 445, 36, '#3a8039'],
+ [300, 565, 60, 545, 40, '#2f7433'],  [300, 565, 540, 550, 40, '#337a35']
+].forEach(l => leaf(...l));
+
+/* ============ armado del ramo ============ */
+const FLOWERS = [
+  { build: sunflower, x: 300, y: 175, s: 1.0,  r: 0,   sw: 1.2, dur: 8, stem: 'M300 610 C310 480 290 330 300 175' },
+  { build: rose,      x: 170, y: 300, s: 1.0,  r: -17, sw: 2.5, dur: 6, stem: 'M300 610 C280 520 205 410 170 300' },
+  { build: narciso,   x: 430, y: 290, s: 0.9,  r: 10,  sw: 3,   dur: 7, stem: 'M300 610 C320 520 400 400 430 290' },
+  { build: dandelion, x: 95,  y: 430, s: 0.62, r: -8,  sw: 3,   dur: 9, stem: 'M300 610 C250 570 150 510 95 430' },
+  { build: lotus,     x: 490, y: 475, s: 0.46, r: 28,  sw: 2,   dur: 7, stem: 'M300 610 C350 585 440 550 490 475' },
+  { build: tulip,     x: 300, y: 405, s: 0.55, r: 0,   sw: 2,   dur: 6, stem: 'M300 610 C300 540 300 470 300 405' }
+];
+const stems = document.getElementById('stems');
+const heads = document.getElementById('heads');
+FLOWERS.forEach((f, i) => {
+  const t = 0.4 + i * 0.3; // primero crece el tallo, luego florece la cabeza
+  el('path', { class: 'stem', d: f.stem, pathLength: 1, style: `--d:${t.toFixed(2)}s` }, stems);
+  const outer = el('g', { transform: `translate(${f.x} ${f.y}) rotate(${f.r}) scale(${f.s})` }, heads);
+  const bloom = el('g', { class: 'bloom', style: `--d:${(t + .9).toFixed(2)}s` }, outer);
+  const sway  = el('g', { class: 'sway',  style: `--sw:${f.sw}deg; --sdur:${f.dur}s; --sd:${(t + 2.2).toFixed(2)}s` }, bloom);
+  f.build(sway);
+});
+
+/* ============ interacción ============ */
+const svg = document.getElementById('bouquet');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let timer;
+function play() {
+  clearTimeout(timer);
+  svg.classList.remove('play', 'open');
+  void svg.getBoundingClientRect(); // fuerza el reinicio de las animaciones
+  svg.classList.add('play');
+  timer = setTimeout(() => svg.classList.add('open'), reduce ? 0 : 2600); // el tulipán y el loto se abren
+}
+svg.addEventListener('click', play);
+svg.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); play(); }
+});
+play();
+</script>
+</body>
+</html>
